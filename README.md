@@ -1,9 +1,15 @@
-# Solidity JS Hardhat project template
+# YoungCompanyStaking
 
-This is sceleton for using in production, as well as in development, audit and testing of contracts on Solidity with JS Hardhat.
+EVM-enabled blockchain for a young company.
+The company has two currencies: ETH (gas coin) and ERC20 Governance token.
 
-Note. This project template is ready for use, only README.md files are not ready, they are in the process. In the future, this template can be improved and supplemented.
+The company encourages users to hold ETH with rewards. Users can deposit a certain amount of Ether and block it on the balance of the contract for a certain time.
 
-Note. In GitHub it can be reused by clicking the "Use this template" button at the top of the page.
+After this time, the user has the opportunity to withdraw all deposited ether + a certain amount of ERC20 Governance token as a reward
+(The reward is calculated according to the formula: 10% of the amount of withdrawn ether).
 
-The MIT license is used, if otherwise, replace the `LICENSE` file and the "license" field in the `package.json` file according to your needs.
+The contract is updated: stores the address of the token, the lock period and the % of the reward.
+
+Additionally, the owner of the contract has the ability to change the values of the lock period and % of rewards.
+The lock period should not be longer than 6 months.
+% of rewards is not more than 50%.
