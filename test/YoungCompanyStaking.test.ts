@@ -10,6 +10,8 @@ import type { Event } from "@ethersproject/contracts";
 
 const { AddressZero } = ethers.constants;
 
+
+TODO: "Work with events in all tests"
 describe("Contract: MintController", function () {
     // snapshoter
     let snapshotA: SnapshotRestorer;
@@ -100,6 +102,32 @@ describe("Contract: MintController", function () {
     });
 
     it("Owner changes lockTime and rewardPercentage", async () => {
+        // Deploy YoungCompanyStaking
+        const ycs = await ethers.getContractFactory("YoungCompanyStaking");
+        YCS = await ycs.deploy(token.address);
+        await YCS.deployed();
+        await YCS.initialize(lockTIme, rewardPercentage);
+
+        // User1 deposit
+        TODO: "Change to work with Ether"
+        let amountUser1 = 100;
+        await YCS.connect(users[0]).deposit(amountUser1);
+
+        // Owner change lockTima and rewardPercentage
+        let newLockTIme = 2 * week;
+        let newRewardPercentage = 0.3;
+        await YCS.setLockTime(newLockTIme);
+        await YCS.setRewardPercentage(newRewardPercentage);
+
+        // User2 deposit
+        TODO: "Change to work with Ether"
+        let amountUser2 = 200;
+        await YCS.connect(users[1]).deposit(amountUser2);
+
+        // Owner show state
+        let allState = await YCS.showState();
+        expect(allState[0].rewardPercentage).to.be.eq(rewardPercentage);
+        expect(allState[1].rewardPercentage).to.be.eq(newRewardPercentage);
     });
 
     it("Owner add and delete admin", async () => {
