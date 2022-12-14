@@ -130,7 +130,32 @@ describe("Contract: MintController", function () {
         expect(allState[1].rewardPercentage).to.be.eq(newRewardPercentage);
     });
 
-    it("Owner add and delete admin", async () => {
+    it("Owner add and delete Admin", async () => {
+        // Deploy YoungCompanyStaking
+        const ycs = await ethers.getContractFactory("YoungCompanyStaking");
+        YCS = await ycs.deploy(token.address);
+        await YCS.deployed();
+        await YCS.initialize(lockTIme, rewardPercentage);
+
+        // Owner add Admin
+        await YCS.addAdmin(admin.address);
+
+        // User1 deposit
+        TODO: "Change to work with Ether"
+        let amountUser1 = 100;
+        await YCS.connect(users[0]).deposit(amountUser1);
+
+        // User2 deposit
+        TODO: "Change to work with Ether"
+        let amountUser2 = 200;
+        await YCS.connect(users[1]).deposit(amountUser2);
+
+        // Admin show state
+        let allState = await YCS.connect(admin).showState();
+        expect(allState.length).to.be.eq(2);
+
+        // Owner remove Admin
+        await YCS.removeAdmin(admin.address);
     });
 
     it("Admin lock and unlock user", async () => {
