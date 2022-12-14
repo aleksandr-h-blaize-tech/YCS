@@ -43,14 +43,14 @@ describe("Contract: MintController", function () {
 
         // snapshot
         snapshotA = await takeSnapshot();
-    });
 
-    it("Owner deploy contracts", async () => {
         // Deploy GovernanceToken
         const GovernanceToken = await ethers.getContractFactory("GovernanceToken");
         token = await GovernanceToken.deploy();
         await token.deployed();
+    });
 
+    it("Owner deploy contracts", async () => {
         // Deploy YoungCompanyStaking
         const ycs = await ethers.getContractFactory("YoungCompanyStaking");
         YCS = await ycs.deploy(token.address);
@@ -66,6 +66,37 @@ describe("Contract: MintController", function () {
     });
 
     it("User deposit, show state and withdraw", async () => {
+        // Deploy YoungCompanyStaking
+        const ycs = await ethers.getContractFactory("YoungCompanyStaking");
+        YCS = await ycs.deploy(token.address);
+        await YCS.deployed();
+        await YCS.initialize(lockTIme, rewardPercentage);
+
+        // User1 deposit
+        TODO: "Change to work with Ether"
+        let amountUser1 = 100;
+        await YCS.connect(users[0]).deposit(amountUser1);
+
+        // User2 deposit
+        TODO: "Change to work with Ether"
+        let amountUser2 = 200;
+        await YCS.connect(users[1]).deposit(amountUser2);
+
+        // User1 show state
+        let user1State = await YCS.connect(users[0]).showState();
+        expect(user1State.length).to.be.eq(1);
+
+        // Owner show state
+        let allState = await YCS.showState();
+        expect(allState.length).to.be.eq(2);
+
+        // Pass time
+        await time.increase(week);
+
+        // User1 withdraw
+        TODO: "Change to work with Ether"
+        await YCS.connect(users[0]).withdraw();
+        expect(await token.balanceOf(users[0].address)).to.be.eq(amountUser1 * rewardPercentage);
     });
 
     it("Owner changes lockTime and rewardPercentage", async () => {
