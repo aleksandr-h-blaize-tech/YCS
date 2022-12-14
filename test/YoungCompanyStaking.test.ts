@@ -10,7 +10,7 @@ import type { Event } from "@ethersproject/contracts";
 
 const { AddressZero } = ethers.constants;
 
-describe("Contract: MintController", function () {
+describe("Contract: YoungCompanyStaking", function () {
     // snapshoter
     let snapshotA: SnapshotRestorer;
 
@@ -45,8 +45,10 @@ describe("Contract: MintController", function () {
         snapshotA = await takeSnapshot();
 
         // Deploy GovernanceToken
+        const tokenName = "GovernanceToken";
+        const tokenSymbol = "GT";
         const GovernanceToken = await ethers.getContractFactory("GovernanceToken");
-        token = await GovernanceToken.deploy();
+        token = await GovernanceToken.deploy(tokenName, tokenSymbol);
         await token.deployed();
     });
 
