@@ -10,8 +10,6 @@ import type { Event } from "@ethersproject/contracts";
 
 const { AddressZero } = ethers.constants;
 
-
-TODO: "Work with events in all tests"
 describe("Contract: MintController", function () {
     // snapshoter
     let snapshotA: SnapshotRestorer;
@@ -77,12 +75,20 @@ describe("Contract: MintController", function () {
         // User1 deposit
         TODO: "Change to work with Ether"
         let amountUser1 = 100;
-        await YCS.connect(users[0]).deposit(amountUser1);
+        let tx = await YCS.connect(users[0]).deposit(amountUser1);
+        await expect(tx).to.emit(YCS, "Deposited").withArgs(
+            users[0].address, amountUser1,
+            await time.latest(), await time.latest() + week,
+            rewardPercentage);
 
         // User2 deposit
         TODO: "Change to work with Ether"
         let amountUser2 = 200;
-        await YCS.connect(users[1]).deposit(amountUser2);
+        tx = await YCS.connect(users[1]).deposit(amountUser2);
+        await expect(tx).to.emit(YCS, "Deposited").withArgs(
+            users[1].address, amountUser2,
+            await time.latest(), await time.latest() + week,
+            rewardPercentage);
 
         // User1 show state
         let user1State = await YCS.connect(users[0]).showState();
@@ -97,7 +103,11 @@ describe("Contract: MintController", function () {
 
         // User1 withdraw
         TODO: "Change to work with Ether"
-        await YCS.connect(users[0]).withdraw();
+        tx = await YCS.connect(users[0]).withdraw();
+        await expect(tx).to.emit(YCS, "Withdrawed").withArgs(
+            [users[0].address, amountUser1,
+            await time.latest(),
+            rewardPercentage * amountUser1]);
         expect(await token.balanceOf(users[0].address)).to.be.eq(amountUser1 * rewardPercentage);
     });
 
@@ -111,18 +121,30 @@ describe("Contract: MintController", function () {
         // User1 deposit
         TODO: "Change to work with Ether"
         let amountUser1 = 100;
-        await YCS.connect(users[0]).deposit(amountUser1);
+        let tx = await YCS.connect(users[0]).deposit(amountUser1);
+        await expect(tx).to.emit(YCS, "Deposited").withArgs(
+            users[0].address, amountUser1,
+            await time.latest(), await time.latest() + week,
+            rewardPercentage);
 
-        // Owner change lockTima and rewardPercentage
+        // Owner change lockTime
         let newLockTIme = 2 * week;
-        let newRewardPercentage = 0.3;
-        await YCS.setLockTime(newLockTIme);
-        await YCS.setRewardPercentage(newRewardPercentage);
+        tx = await YCS.setLockTime(newLockTIme);
+        await expect(tx).to.emit(YCS, "LockTimeChanged").withArgs(lockTIme, newLockTIme);
+
+        // Owner change rewardPercentage        
+        let newRewardPercentage = 0.3;        
+        tx = await YCS.setRewardPercentage(newRewardPercentage);
+        await expect(tx).to.emit(YCS, "RewardPercentageChanged").withArgs(rewardPercentage, newRewardPercentage);
 
         // User2 deposit
         TODO: "Change to work with Ether"
         let amountUser2 = 200;
-        await YCS.connect(users[1]).deposit(amountUser2);
+        tx = await YCS.connect(users[1]).deposit(amountUser2);
+        await expect(tx).to.emit(YCS, "Deposited").withArgs(
+            users[1].address, amountUser2,
+            await time.latest(), await time.latest() + week,
+            rewardPercentage);
 
         // Owner show state
         let allState = await YCS.showState();
@@ -138,24 +160,34 @@ describe("Contract: MintController", function () {
         await YCS.initialize(lockTIme, rewardPercentage);
 
         // Owner add Admin
-        await YCS.addAdmin(admin.address);
+        let tx = await YCS.addAdmin(admin.address);
+        await expect(tx).to.emit(YCS, "AdminAdded").withArgs(admin.address);
 
         // User1 deposit
         TODO: "Change to work with Ether"
         let amountUser1 = 100;
-        await YCS.connect(users[0]).deposit(amountUser1);
+        tx = await YCS.connect(users[0]).deposit(amountUser1);
+        await expect(tx).to.emit(YCS, "Deposited").withArgs(
+            users[0].address, amountUser1,
+            await time.latest(), await time.latest() + week,
+            rewardPercentage);
 
         // User2 deposit
         TODO: "Change to work with Ether"
         let amountUser2 = 200;
-        await YCS.connect(users[1]).deposit(amountUser2);
+        tx = await YCS.connect(users[1]).deposit(amountUser2);
+        await expect(tx).to.emit(YCS, "Deposited").withArgs(
+            users[1].address, amountUser2,
+            await time.latest(), await time.latest() + week,
+            rewardPercentage);
 
         // Admin show state
         let allState = await YCS.connect(admin).showState();
         expect(allState.length).to.be.eq(2);
 
         // Owner remove Admin
-        await YCS.removeAdmin(admin.address);
+        tx = await YCS.removeAdmin(admin.address);
+        await expect(tx).to.emit(YCS, "AdminRemoved").withArgs(admin.address);
     });
 
     it("Admin lock and unlock User", async () => {
@@ -166,10 +198,12 @@ describe("Contract: MintController", function () {
         await YCS.initialize(lockTIme, rewardPercentage);
 
         // Owner add Admin
-        await YCS.addAdmin(admin.address);
+        let tx = await YCS.addAdmin(admin.address);
+        await expect(tx).to.emit(YCS, "AdminAdded").withArgs(admin.address);
 
         // Admin lock User1
-        await YCS.connect(admin).lockUser(users[0]);
+        tx = await YCS.connect(admin).lockUser(users[0]);
+        await expect(tx).to.emit(YCS, "UserLocked").withArgs(users[0].address);
 
         // User1 try deposiit
         TODO: "Change to work with Ether"
@@ -180,15 +214,24 @@ describe("Contract: MintController", function () {
         // User2 deposit
         TODO: "Change to work with Ether"
         let amountUser2 = 200;
-        await YCS.connect(users[1]).deposit(amountUser2);
+        tx = await YCS.connect(users[1]).deposit(amountUser2);
+        await expect(tx).to.emit(YCS, "Deposited").withArgs(
+            users[1].address, amountUser2,
+            await time.latest(), await time.latest() + week,
+            rewardPercentage);
 
         // Admin unlock User1
-        await YCS.connect(admin).unlockUser(users[0]);
+        tx = await YCS.connect(admin).unlockUser(users[0]);
+        await expect(tx).to.emit(YCS, "UserUnlocked").withArgs(users[0].address);
 
         // User1 deposit
         TODO: "Change to work with Ether"
-        await YCS.connect(users[0]).deposit(amountUser1);
-
+        amountUser1 = 100;
+        tx = await YCS.connect(users[0]).deposit(amountUser1);
+        await expect(tx).to.emit(YCS, "Deposited").withArgs(
+            users[0].address, amountUser1,
+            await time.latest(), await time.latest() + week,
+            rewardPercentage);
     });
 
     // restore snapshot
