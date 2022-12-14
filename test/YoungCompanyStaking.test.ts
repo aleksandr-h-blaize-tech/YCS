@@ -158,7 +158,37 @@ describe("Contract: MintController", function () {
         await YCS.removeAdmin(admin.address);
     });
 
-    it("Admin lock and unlock user", async () => {
+    it("Admin lock and unlock User", async () => {
+        // Deploy YoungCompanyStaking
+        const ycs = await ethers.getContractFactory("YoungCompanyStaking");
+        YCS = await ycs.deploy(token.address);
+        await YCS.deployed();
+        await YCS.initialize(lockTIme, rewardPercentage);
+
+        // Owner add Admin
+        await YCS.addAdmin(admin.address);
+
+        // Admin lock User1
+        await YCS.connect(admin).lockUser(users[0]);
+
+        // User1 try deposiit
+        TODO: "Change to work with Ether"
+        let amountUser1 = 100;
+        let stringError = "UserLocked";
+        await expect(YCS.connect(users[0]).deposit(amountUser1)).to.be.revertedWithCustomError(YCS, stringError);
+
+        // User2 deposit
+        TODO: "Change to work with Ether"
+        let amountUser2 = 200;
+        await YCS.connect(users[1]).deposit(amountUser2);
+
+        // Admin unlock User1
+        await YCS.connect(admin).unlockUser(users[0]);
+
+        // User1 deposit
+        TODO: "Change to work with Ether"
+        await YCS.connect(users[0]).deposit(amountUser1);
+
     });
 
     // restore snapshot
