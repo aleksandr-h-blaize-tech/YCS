@@ -67,7 +67,7 @@ describe("Contract: YoungCompanyStaking", function () {
         expect(await YCS.rewardPercentage()).to.be.eq(rewardPercentage);
     });
 
-    it("User deposit, show state and withdraw", async () => {
+    it.only("User deposit, show state and withdraw", async () => {
         // Deploy YoungCompanyStaking
         const ycs = await ethers.getContractFactory("YoungCompanyStaking");
         YCS = await ycs.deploy(token.address);
@@ -93,11 +93,11 @@ describe("Contract: YoungCompanyStaking", function () {
             rewardPercentage);
 
         // User1 show state
-        let user1State = await YCS.connect(users[0]).showState();
+        let user1State = await YCS.connect(users[0]).deposits(0);
         expect(user1State.length).to.be.eq(1);
 
         // Owner show state
-        let allState = await YCS.showState();
+        let allState = await YCS.deposits();
         expect(allState.length).to.be.eq(2);
 
         // Pass time
@@ -149,7 +149,7 @@ describe("Contract: YoungCompanyStaking", function () {
             rewardPercentage);
 
         // Owner show state
-        let allState = await YCS.showState();
+        let allState = await YCS.deposits();
         expect(allState[0].rewardPercentage).to.be.eq(rewardPercentage);
         expect(allState[1].rewardPercentage).to.be.eq(newRewardPercentage);
     });
@@ -184,7 +184,7 @@ describe("Contract: YoungCompanyStaking", function () {
             rewardPercentage);
 
         // Admin show state
-        let allState = await YCS.connect(admin).showState();
+        let allState = await YCS.connect(admin).deposits();
         expect(allState.length).to.be.eq(2);
 
         // Owner remove Admin
