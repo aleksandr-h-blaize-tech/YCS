@@ -6,6 +6,8 @@ import "hardhat/console.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
+import "../interfaces/IGovernanceToken.sol";
+
 contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
 
     // _______________ Storage _______________
@@ -54,6 +56,16 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
         rewardPercentage = _rewardPercentage;
     }
 
+    // _______________ Getters ______________
+    function getDeposits() public view returns (Deposit[] memory){
+        Deposit[] memory deps = new Deposit[](deposits.length);
+        for (uint i = 0; i < deposits.length; i++) {
+            Deposit storage deposit = deposits[i];
+            deps[i] = deposit;
+        }
+        return deps;
+    }
+
     // _______________ Users functions ______________
     function deposit(uint256 _amount) public {
         deposits.push(Deposit({
@@ -67,15 +79,19 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
         emit Deposited(msg.sender, _amount, block.timestamp, block.timestamp + lockTime, rewardPercentage);
     }
 
-    function showState() public view returns (Deposit[] memory){
-        Deposit[] memory deps = new Deposit[](deposits.length);
-        for (uint i = 0; i < deposits.length; i++) {
-            Deposit storage deposit = deposits[i];
-            deps[i] = deposit;
-        }
-        return deps;
-    }
-
     function withdraw() public {
+        uint256 amount = 0;
+        uint256 rewards = 0;
+
+        for (uint i = 0; i < deposits.length; i++) {
+            if (deposits[i].user == msg.sender) {
+                amount += deposits[i].amount;
+                IGovernanceToken(token).mint(msg.sender, amount * rewardPercentage / 100);
+                rewards += amount * rewardPercentage / 100;
+                delete deposits[i];
+            }
+        }
+
+        emit Withdrawed(msg.sender, amount, block.timestamp, rewards);
     }
 }

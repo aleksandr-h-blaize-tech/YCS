@@ -93,11 +93,11 @@ describe("Contract: YoungCompanyStaking", function () {
             rewardPercentage);
 
         // User1 show state
-        let user1State = await YCS.connect(users[0]).showState();
+        let user1State = await YCS.connect(users[0]).getDeposits();
         expect(user1State.length).to.be.eq(2);
 
         // Owner show state
-        let allState = await YCS.showState();
+        let allState = await YCS.getDeposits();
         expect(allState.length).to.be.eq(2);
 
         // Pass time
@@ -107,10 +107,11 @@ describe("Contract: YoungCompanyStaking", function () {
         TODO: "Change to work with Ether"
         tx = await YCS.connect(users[0]).withdraw();
         await expect(tx).to.emit(YCS, "Withdrawed").withArgs(
-            [users[0].address, amountUser1,
+            users[0].address,
+            amountUser1,
             await time.latest(),
-            rewardPercentage * amountUser1]);
-        expect(await token.balanceOf(users[0].address)).to.be.eq(amountUser1 * rewardPercentage);
+            rewardPercentage * amountUser1 / 100);
+        expect(await token.balanceOf(users[0].address)).to.be.eq(amountUser1 * rewardPercentage / 100);
     });
 
     it("Owner changes lockTime and rewardPercentage", async () => {
@@ -149,7 +150,7 @@ describe("Contract: YoungCompanyStaking", function () {
             rewardPercentage);
 
         // Owner show state
-        let allState = await YCS.showState();
+        let allState = await YCS.getDeposits();
         expect(allState[0].rewardPercentage).to.be.eq(rewardPercentage);
         expect(allState[1].rewardPercentage).to.be.eq(newRewardPercentage);
     });
@@ -184,7 +185,7 @@ describe("Contract: YoungCompanyStaking", function () {
             rewardPercentage);
 
         // Admin show state
-        let allState = await YCS.connect(admin).showState();
+        let allState = await YCS.connect(admin).getDeposits();
         expect(allState.length).to.be.eq(2);
 
         // Owner remove Admin
