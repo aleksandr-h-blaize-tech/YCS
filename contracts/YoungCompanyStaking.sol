@@ -67,6 +67,15 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
         emit Deposited(msg.sender, _amount, block.timestamp, block.timestamp + lockTime, rewardPercentage);
     }
 
+    function showState() public view returns (Deposit[] memory){
+        Deposit[] memory deps = new Deposit[](deposits.length);
+        for (uint i = 0; i < deposits.length; i++) {
+            Deposit storage deposit = deposits[i];
+            deps[i] = deposit;
+        }
+        return deps;
+    }
+
     function withdraw() public {
     }
 }
