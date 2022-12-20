@@ -32,7 +32,7 @@ describe("Contract: YoungCompanyStaking", function () {
 
     // YCS setting
     let lockTIme = week;
-    let rewardPercentage = 0.1;
+    let rewardPercentage = 10;
     
     before(async () => {
         // Getting of signers.
@@ -63,7 +63,7 @@ describe("Contract: YoungCompanyStaking", function () {
 
         // Check state
         expect(await YCS.token()).to.be.eq(token.address);
-        expect(await YCS.lockTIme()).to.be.eq(week);
+        expect(await YCS.lockTime()).to.be.eq(week);
         expect(await YCS.rewardPercentage()).to.be.eq(rewardPercentage);
     });
 
