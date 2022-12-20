@@ -1,18 +1,24 @@
 {
     "trailingComma": "none",
-    "tabWidth": 4,
     "printWidth": 120,
+    "tabWidth": 4,
     "semi": true,
     "overrides": [
         {
             "files": "*.sol",
             "options": {
-                "tabWidth": 4,
                 "printWidth": 120,
+                "tabWidth": 4,
                 "useTabs": false,
                 "singleQuote": false,
                 "bracketSpacing": false,
                 "explicitTypes": "always"
+            }
+        },
+        {
+            "files": "*.ts, *.js",
+            "options": {
+                "bracketSpacing": false
             }
         }
     ]

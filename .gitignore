@@ -1,58 +1,45 @@
-# Hardhat
+# Hardhat files.
 cache
 artifacts
 
-# Artifacts that TypeChain creates
+# Artifacts that TypeChain creates.
 typechain
+typechain-types
 
-# Logs
+# Logs.
 logs
 *.log
 
-# solidity-coverage
+# `solidity-coverage`.
 coverage
 coverage.json
-.coverage_artifacts
 
-# Dependency directory
+# Dependency directory.
 node_modules
 
-# Debug log from npm
+# Debug log from npm.
 npm-debug.log
 
-# Local env variables
+# Local env variables.
 .env
 
-# macOS
+# macOS.
 .DS_Store
 
-# IntelliJ IDE
+# IntelliJ IDE.
 .idea
 
-# Diagnostic reports (https://nodejs.org/api/report.html)
-report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
-
-# Runtime data
-pids
-*.pid
-*.seed
-
-# node-waf configuration
-.lock-wscript
-
-# Optional eslint cache
-.eslintcache
-
-# yarn
+# yarn.
+.yarn/*
+.yarn-integrity
 yarn-debug.log*
 yarn-error.log*
-.yarn-integrity
 
-# Python cache
-__pycache__
-
-# Flatten script input
-json_inputs
-
-# Track of all the implementation contracts of the `@openzeppelin/hardhat-upgrades` plugin
+# Track of all the implementation contracts of the `@openzeppelin/hardhat-upgrades` plugin.
 .openzeppelin
+
+# The output file of `hardhat-gas-reporter`.
+gas-report.txt
+
+# Output of `solc`.
+bin
