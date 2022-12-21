@@ -146,12 +146,12 @@ describe("Contract: YoungCompanyStaking", function () {
         tx = await YCS.connect(users[1]).deposit(amountUser2);
         await expect(tx).to.emit(YCS, "Deposited").withArgs(
             users[1].address, amountUser2,
-            await time.latest(), await time.latest() + week,
+            await time.latest(), await time.latest() + newLockTIme,
             newRewardPercentage);
 
         // Owner show state
         let allState = await YCS.getDeposits();
-        expect(allState[0].rewardPercentage).to.be.not.eq(rewardPercentage);
+        expect(allState[0].rewardPercentage).to.be.eq(rewardPercentage);
         expect(allState[1].rewardPercentage).to.be.eq(newRewardPercentage);
     });
 
@@ -189,8 +189,8 @@ describe("Contract: YoungCompanyStaking", function () {
         expect(allState.length).to.be.eq(2);
 
         // Owner remove Admin
-        tx = await YCS.removeAdmin(admin.address);
-        await expect(tx).to.emit(YCS, "AdminRemoved").withArgs(admin.address);
+        tx = await YCS.revokeAdmin(admin.address);
+        await expect(tx).to.emit(YCS, "AdminRevoked").withArgs(admin.address);
     });
 
     it("Admin lock and unlock User", async () => {
@@ -205,13 +205,13 @@ describe("Contract: YoungCompanyStaking", function () {
         await expect(tx).to.emit(YCS, "AdminAdded").withArgs(admin.address);
 
         // Admin lock User1
-        tx = await YCS.connect(admin).lockUser(users[0]);
+        tx = await YCS.connect(admin).lockUser(users[0].address);
         await expect(tx).to.emit(YCS, "UserLocked").withArgs(users[0].address);
 
         // User1 try deposiit
         TODO: "Change to work with Ether"
         let amountUser1 = 100;
-        let stringError = "UserLocked";
+        let stringError = "AccountLocked";
         await expect(YCS.connect(users[0]).deposit(amountUser1)).to.be.revertedWithCustomError(YCS, stringError);
 
         // User2 deposit
@@ -224,7 +224,7 @@ describe("Contract: YoungCompanyStaking", function () {
             rewardPercentage);
 
         // Admin unlock User1
-        tx = await YCS.connect(admin).unlockUser(users[0]);
+        tx = await YCS.connect(admin).unlockUser(users[0].address);
         await expect(tx).to.emit(YCS, "UserUnlocked").withArgs(users[0].address);
 
         // User1 deposit

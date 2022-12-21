@@ -27,13 +27,14 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
     mapping(address => bool) internal lockUsers;
 
     // _______________ Constants _______________
-    bytes32 public constant MINTER_ROLE = keccak256("ADMIN_ROLE");
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
     // _______________ Errors _______________
+    error AccountLocked();
 
     // _______________ Events _______________
     event AdminAdded(address _admin);
-    event AdminRemoved(address _admin);
+    event AdminRevoked(address _admin);
 
     event UserLocked(address _user);
     event UserUnlocked(address _user);
@@ -43,6 +44,14 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
 
     event Deposited(address _user, uint256 _amount, uint256 _startTime, uint256 _endTime, uint256 _rewardPercentage);
     event Withdrawed(address _user, uint256 _amount, uint256 _timeSnapshot, uint256 _reward);
+
+    // _______________ Modifiers _______________
+    modifier onlyUnlockedUser(address _user) {
+        if (lockUsers[_user]) {
+            revert AccountLocked();
+        }
+        _;
+    }
 
     // _______________ Constructor ______________
     constructor(address _token) {
@@ -81,9 +90,35 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
         emit RewardPercentageChanged(oldRewardPercentage, rewardPercentage);
     }
 
+    function addAdmin(address _admin) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        _grantRole(ADMIN_ROLE, _admin);
+
+        emit AdminAdded(_admin);
+    }
+
+    function revokeAdmin(address _admin) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        _revokeRole(ADMIN_ROLE, _admin);
+
+        emit AdminRevoked(_admin);
+    }
+
+    // _______________ Admin functions ______________
+    function lockUser(address _user) public onlyRole(ADMIN_ROLE) {
+        lockUsers[_user] = true;
+
+        emit UserLocked(_user);
+    }
+
+    function unlockUser(address _user) public onlyRole(ADMIN_ROLE) {
+        lockUsers[_user] = false;
+
+        emit UserUnlocked(_user);
+    }
+
+
     // _______________ Users functions ______________
     // TODO: Ether!!!
-    function deposit(uint256 _amount) public {
+    function deposit(uint256 _amount) public onlyUnlockedUser(msg.sender) {
         deposits.push(Deposit({
             user: msg.sender,
             amount: _amount,
@@ -96,7 +131,7 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
     }
 
     // TODO: Ether!!!
-    function withdraw() public {
+    function withdraw() public onlyUnlockedUser(msg.sender) {
         uint256 amount = 0;
         uint256 rewards = 0;
 
