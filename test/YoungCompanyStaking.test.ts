@@ -34,7 +34,7 @@ describe("Contract: YoungCompanyStaking", function () {
     let lockTIme = week;
     let rewardPercentage = 10;
     
-    before(async () => {
+    beforeEach(async () => {
         // Getting of signers.
         const signers = await ethers.getSigners();
         owner = signers[0];
@@ -67,7 +67,7 @@ describe("Contract: YoungCompanyStaking", function () {
         expect(await YCS.rewardPercentage()).to.be.eq(rewardPercentage);
     });
 
-    it.skip("User deposit, show state and withdraw", async () => {
+    it("User deposit, show state and withdraw", async () => {
         // Deploy YoungCompanyStaking
         const ycs = await ethers.getContractFactory("YoungCompanyStaking");
         YCS = await ycs.deploy(token.address);
