@@ -115,19 +115,28 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
         emit UserUnlocked(_user);
     }
 
+    // TODO
+    function withdrawEther() public onlyRole(ADMIN_ROLE) {
+
+    }
+
+    // TODO
+    function sendEther() public payable onlyRole(ADMIN_ROLE) {
+        
+    }
 
     // _______________ Users functions ______________
-    // TODO: Ether!!!
-    function deposit(uint256 _amount) public onlyUnlockedUser(msg.sender) {
+    function deposit() public payable onlyUnlockedUser(msg.sender) {
+        uint256 amount = msg.value;
         deposits.push(Deposit({
             user: msg.sender,
-            amount: _amount,
+            amount: amount,
             startTime: block.timestamp,
             endTime: block.timestamp + lockTime,
             rewardPercentage: rewardPercentage
         }));
 
-        emit Deposited(msg.sender, _amount, block.timestamp, block.timestamp + lockTime, rewardPercentage);
+        emit Deposited(msg.sender, amount, block.timestamp, block.timestamp + lockTime, rewardPercentage);
     }
 
     // TODO: Ether!!!
