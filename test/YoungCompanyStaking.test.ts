@@ -67,7 +67,7 @@ describe("Contract: YoungCompanyStaking", function () {
         expect(await YCS.rewardPercentage()).to.be.eq(rewardPercentage);
     });
 
-    it.only("User deposit, show state and withdraw", async () => {
+    it.skip("User deposit, show state and withdraw", async () => {
         // Deploy YoungCompanyStaking
         const ycs = await ethers.getContractFactory("YoungCompanyStaking");
         YCS = await ycs.deploy(token.address);
@@ -136,7 +136,7 @@ describe("Contract: YoungCompanyStaking", function () {
         await expect(tx).to.emit(YCS, "LockTimeChanged").withArgs(lockTIme, newLockTIme);
 
         // Owner change rewardPercentage        
-        let newRewardPercentage = 0.3;        
+        let newRewardPercentage = 30;
         tx = await YCS.setRewardPercentage(newRewardPercentage);
         await expect(tx).to.emit(YCS, "RewardPercentageChanged").withArgs(rewardPercentage, newRewardPercentage);
 
@@ -147,11 +147,11 @@ describe("Contract: YoungCompanyStaking", function () {
         await expect(tx).to.emit(YCS, "Deposited").withArgs(
             users[1].address, amountUser2,
             await time.latest(), await time.latest() + week,
-            rewardPercentage);
+            newRewardPercentage);
 
         // Owner show state
         let allState = await YCS.getDeposits();
-        expect(allState[0].rewardPercentage).to.be.eq(rewardPercentage);
+        expect(allState[0].rewardPercentage).to.be.not.eq(rewardPercentage);
         expect(allState[1].rewardPercentage).to.be.eq(newRewardPercentage);
     });
 

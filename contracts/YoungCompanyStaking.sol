@@ -66,7 +66,23 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
         return deps;
     }
 
+    // _______________ Owner functions ______________
+    function setLockTime(uint256 _newLockTime) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        uint256 oldLockTime = lockTime;
+        lockTime = _newLockTime;
+
+        emit LockTimeChanged(oldLockTime, lockTime);
+    }
+
+    function setRewardPercentage(uint256 _newRewardPercentage) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        uint256 oldRewardPercentage = rewardPercentage;
+        rewardPercentage = _newRewardPercentage;
+
+        emit RewardPercentageChanged(oldRewardPercentage, rewardPercentage);
+    }
+
     // _______________ Users functions ______________
+    // TODO: Ether!!!
     function deposit(uint256 _amount) public {
         deposits.push(Deposit({
             user: msg.sender,
@@ -79,6 +95,7 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
         emit Deposited(msg.sender, _amount, block.timestamp, block.timestamp + lockTime, rewardPercentage);
     }
 
+    // TODO: Ether!!!
     function withdraw() public {
         uint256 amount = 0;
         uint256 rewards = 0;
