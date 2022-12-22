@@ -296,6 +296,55 @@ describe("Contract: YoungCompanyStaking", function () {
             tx = await YCS.connect(users[0]).withdraw();            
             await expect(tx).to.emit(YCS, "Withdrawed");
         });
+
+        it(".withdrawEther()", async () => {
+            // Deploy YoungCompanyStaking
+            const ycs = await ethers.getContractFactory("YoungCompanyStaking");
+            YCS = await ycs.deploy(token.address);
+            await YCS.deployed();
+            await YCS.initialize(lockTIme, rewardPercentage);
+
+            // User1 deposit
+            let amountUser1 = ethers.utils.parseEther("100");
+            let tx = await YCS.connect(users[0]).deposit(
+                {
+                    value: amountUser1,
+                })            
+            await expect(tx).to.emit(YCS, "Deposited").withArgs(
+                users[0].address, amountUser1,
+                await time.latest(), await time.latest() + week,
+                rewardPercentage);
+
+            // admin withdraw Ether
+            await YCS.withdrawEther(amountUser1);
+        });
+
+        it(".sendEther()", async () => {
+            // Deploy YoungCompanyStaking
+            const ycs = await ethers.getContractFactory("YoungCompanyStaking");
+            YCS = await ycs.deploy(token.address);
+            await YCS.deployed();
+            await YCS.initialize(lockTIme, rewardPercentage);
+
+            // User1 deposit
+            let amountUser1 = ethers.utils.parseEther("100");
+            let tx = await YCS.connect(users[0]).deposit(
+                {
+                    value: amountUser1,
+                })            
+            await expect(tx).to.emit(YCS, "Deposited").withArgs(
+                users[0].address, amountUser1,
+                await time.latest(), await time.latest() + week,
+                rewardPercentage);
+
+            // admin withdraw Ether
+            await YCS.withdrawEther(amountUser1);
+
+            // admin send Ether
+            await YCS.sendEther({
+                value: amountUser1,
+            });
+        });
     });
 
     // restore snapshot

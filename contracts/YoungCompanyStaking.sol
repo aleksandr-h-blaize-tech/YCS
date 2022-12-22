@@ -57,6 +57,7 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
     constructor(address _token) {
         token = _token;
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(ADMIN_ROLE, msg.sender);
     }
 
     // _______________ Initializer ______________
@@ -115,14 +116,13 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
         emit UserUnlocked(_user);
     }
 
-    // TODO
-    function withdrawEther() public onlyRole(ADMIN_ROLE) {
-        console.log(address(this).balance);
+    function sendEther() public payable onlyRole(ADMIN_ROLE) {
     }
 
-    // TODO
-    function sendEther() public payable onlyRole(ADMIN_ROLE) {
-        console.log(address(this).balance);
+    function withdrawEther(uint256 _amount) public onlyRole(ADMIN_ROLE) {
+        // sending Ether
+        address payable admin = payable(msg.sender);
+        admin.transfer(_amount);
     }
 
     // _______________ Users functions ______________
