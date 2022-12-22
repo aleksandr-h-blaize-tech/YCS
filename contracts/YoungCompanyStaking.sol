@@ -117,12 +117,12 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
 
     // TODO
     function withdrawEther() public onlyRole(ADMIN_ROLE) {
-
+        console.log(address(this).balance);
     }
 
     // TODO
     function sendEther() public payable onlyRole(ADMIN_ROLE) {
-        
+        console.log(address(this).balance);
     }
 
     // _______________ Users functions ______________
@@ -139,20 +139,24 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
         emit Deposited(msg.sender, amount, block.timestamp, block.timestamp + lockTime, rewardPercentage);
     }
 
-    // TODO: Ether!!!
     function withdraw() public onlyUnlockedUser(msg.sender) {
-        uint256 amount = 0;
-        uint256 rewards = 0;
+        uint256 etherAmount = 0;
+        uint256 ERC20rewards = 0;
 
         for (uint i = 0; i < deposits.length; i++) {
             if (deposits[i].user == msg.sender) {
-                amount += deposits[i].amount;
-                IGovernanceToken(token).mint(msg.sender, amount * rewardPercentage / 100);
-                rewards += amount * rewardPercentage / 100;
+                etherAmount += deposits[i].amount;
+                IGovernanceToken(token).mint(msg.sender, deposits[i].amount * rewardPercentage / 100);
+                ERC20rewards += deposits[i].amount * rewardPercentage / 100;
                 delete deposits[i];
             }
         }
 
-        emit Withdrawed(msg.sender, amount, block.timestamp, rewards);
+        // sending Ether
+        address payable user = payable(msg.sender);
+        user.transfer(etherAmount);
+
+        // emit event
+        emit Withdrawed(msg.sender, etherAmount, block.timestamp, ERC20rewards);
     }
 }

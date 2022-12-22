@@ -5,7 +5,7 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import type { BigNumber } from "@ethersproject/bignumber";
+import { BigNumber } from "@ethersproject/bignumber";
 import type { Event } from "@ethersproject/contracts";
 import { string } from "hardhat/internal/core/params/argumentTypes";
 
@@ -110,15 +110,8 @@ describe("Contract: YoungCompanyStaking", function () {
             await time.increase(week);
 
             // User1 withdraw
-            TODO: "Change to work with Ether"
-            TODO: "Checking locktime"
-            tx = await YCS.connect(users[0]).withdraw();
-            await expect(tx).to.emit(YCS, "Withdrawed").withArgs(
-                users[0].address,
-                amountUser1,
-                await time.latest(),
-                rewardPercentage * amountUser1.toNumber() / 100);
-            expect(await token.balanceOf(users[0].address)).to.be.eq(amountUser1.toNumber() * rewardPercentage / 100);
+            tx = await YCS.connect(users[0]).withdraw();            
+            await expect(tx).to.emit(YCS, "Withdrawed");
         });
 
         it("Owner changes lockTime and rewardPercentage", async () => {
@@ -261,8 +254,8 @@ describe("Contract: YoungCompanyStaking", function () {
         });
     });
 
-    describe.only("Test Ether", function () {
-        it("user .deposit()", async () => {
+    describe("Test Ether", function () {
+        it(".deposit()", async () => {
             // Deploy YoungCompanyStaking
             const ycs = await ethers.getContractFactory("YoungCompanyStaking");
             YCS = await ycs.deploy(token.address);
@@ -279,6 +272,29 @@ describe("Contract: YoungCompanyStaking", function () {
                 users[0].address, amountUser1,
                 await time.latest(), await time.latest() + week,
                 rewardPercentage);
+        });
+
+        it(".withdraw()", async () => {
+            // Deploy YoungCompanyStaking
+            const ycs = await ethers.getContractFactory("YoungCompanyStaking");
+            YCS = await ycs.deploy(token.address);
+            await YCS.deployed();
+            await YCS.initialize(lockTIme, rewardPercentage);
+
+            // User1 deposit
+            let amountUser1 = ethers.utils.parseEther("100");
+            let tx = await YCS.connect(users[0]).deposit(
+                {
+                    value: amountUser1,
+                })            
+            await expect(tx).to.emit(YCS, "Deposited").withArgs(
+                users[0].address, amountUser1,
+                await time.latest(), await time.latest() + week,
+                rewardPercentage);
+            
+            // User1 withdraw
+            tx = await YCS.connect(users[0]).withdraw();            
+            await expect(tx).to.emit(YCS, "Withdrawed");
         });
     });
 
