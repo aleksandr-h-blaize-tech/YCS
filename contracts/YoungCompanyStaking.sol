@@ -24,8 +24,7 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
             uint256 rewardPercentage;
         }
     
-    // mapping(address => Deposit[]) public deposits;
-    Deposit[] public deposits;
+    mapping(address => Deposit[]) public deposits;
     mapping(address => bool) internal lockUsers;
 
     // _______________ Constants _______________
@@ -98,14 +97,14 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
     }
 
     // _______________ Getters ______________
-    // TODO
     function getDeposits() public view returns (Deposit[] memory){
-        Deposit[] memory deps = new Deposit[](deposits.length);
-        for (uint i = 0; i < deposits.length; i++) {
-            Deposit storage deposit = deposits[i];
-            deps[i] = deposit;
-        }
-        return deps;
+        Deposit[] memory deps = new Deposit[](deposits[msg.sender].length);
+
+            for (uint i = 0; i < deposits[msg.sender].length; i++) {
+                Deposit storage deposit = deposits[msg.sender][i];
+                deps[i] = deposit;
+            }
+            return deps;
     }
 
     // _______________ Owner functions ______________
@@ -221,7 +220,7 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
         }
 
         uint256 amount = msg.value;
-        deposits.push(Deposit({
+        deposits[msg.sender].push(Deposit({
             user: msg.sender,
             amount: amount,
             startTime: block.timestamp,
@@ -233,15 +232,15 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
     }
 
     // TODO
-    function withdraw() public onlyUnlockedUser(msg.sender) {
+    function withdraw() public {
         uint256 etherAmount = 0;
         uint256 ERC20rewards = 0;
 
-        for (uint i = 0; i < deposits.length; i++) {
-            if ((deposits[i].user == msg.sender) && (deposits[i].endTime < block.timestamp)) {
-                etherAmount += deposits[i].amount;
-                IGovernanceToken(token).mint(msg.sender, deposits[i].amount * rewardPercentage / 100);
-                ERC20rewards += deposits[i].amount * rewardPercentage / 100;
+        for (uint i = 0; i < deposits[msg.sender].length; i++) {
+            if (deposits[msg.sender][i].endTime < block.timestamp) {
+                etherAmount += deposits[msg.sender][i].amount;
+                IGovernanceToken(token).mint(msg.sender, deposits[msg.sender][i].amount * rewardPercentage / 100);
+                ERC20rewards += deposits[msg.sender][i].amount * rewardPercentage / 100;
                 _removeDeposit(msg.sender, i);
             }
         }

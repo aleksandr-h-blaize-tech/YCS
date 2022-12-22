@@ -100,11 +100,11 @@ describe("Contract: YoungCompanyStaking", function () {
 
             // User1 show state
             let user1State = await YCS.connect(users[0]).getDeposits();
-            expect(user1State.length).to.be.eq(2);
+            expect(user1State.length).to.be.eq(1);
 
             // Owner show state
             let allState = await YCS.getDeposits();
-            expect(allState.length).to.be.eq(2);
+            expect(allState.length).to.be.eq(0);
 
             // Pass time
             await time.increase(week);
@@ -155,8 +155,8 @@ describe("Contract: YoungCompanyStaking", function () {
 
             // Owner show state
             let allState = await YCS.getDeposits();
-            expect(allState[0].rewardPercentage).to.be.eq(rewardPercentage);
-            expect(allState[1].rewardPercentage).to.be.eq(newRewardPercentage);
+            expect((await YCS.connect(users[0]).getDeposits())[0].rewardPercentage).to.be.eq(rewardPercentage);
+            expect((await YCS.connect(users[1]).getDeposits())[0].rewardPercentage).to.be.eq(newRewardPercentage);
         });
 
         it("Owner add and delete Admin", async () => {
@@ -192,9 +192,9 @@ describe("Contract: YoungCompanyStaking", function () {
                 await time.latest(), await time.latest() + week,
                 rewardPercentage);
 
-            // Admin show state
-            let allState = await YCS.connect(admin).getDeposits();
-            expect(allState.length).to.be.eq(2);
+            // User2 show state
+            let allState = await YCS.connect(users[1]).getDeposits();
+            expect(allState.length).to.be.eq(1);
 
             // Owner remove Admin
             tx = await YCS.revokeAdmin(admin.address);
