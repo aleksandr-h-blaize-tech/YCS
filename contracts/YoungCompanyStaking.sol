@@ -23,6 +23,8 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
             uint256 endTime;
             uint256 rewardPercentage;
         }
+    
+    // mapping(address => Deposit[]) public deposits;
     Deposit[] public deposits;
     mapping(address => bool) internal lockUsers;
 
@@ -31,6 +33,20 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
 
     // _______________ Errors _______________
     error AccountLocked();
+
+    error ZeroAddress();
+
+    error IncorrectLockTime();
+    error IncorrectRewardPercentage();
+
+    error AdminNotGranted();
+    error AdminAlreadyGranted();
+
+    error UserNotLocked();
+    error UserAlreadyLocked();
+
+    error ContractHasNoEther();
+    error EmptyDeposit();
 
     // _______________ Events _______________
     event AdminAdded(address _admin);
@@ -55,6 +71,11 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
 
     // _______________ Constructor ______________
     constructor(address _token) {
+        // cheking not zero address
+        if (address(_token) == address(0)) {
+            revert ZeroAddress();
+        }
+
         token = _token;
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(ADMIN_ROLE, msg.sender);
@@ -62,11 +83,22 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
 
     // _______________ Initializer ______________
     function initialize(uint256 _lockTIme, uint256 _rewardPercentage) external onlyRole(DEFAULT_ADMIN_ROLE) initializer {
+        // checking lock time
+        if ((_lockTIme <= 0) || (_lockTIme > 26 weeks)) {
+            revert IncorrectLockTime();
+        }
+
+        // checking reward percentage
+        if ((_rewardPercentage <= 0) || (_rewardPercentage > 50)) {
+            revert IncorrectRewardPercentage();
+        }
+
         lockTime = _lockTIme;
         rewardPercentage = _rewardPercentage;
     }
 
     // _______________ Getters ______________
+    // TODO
     function getDeposits() public view returns (Deposit[] memory){
         Deposit[] memory deps = new Deposit[](deposits.length);
         for (uint i = 0; i < deposits.length; i++) {
@@ -78,6 +110,11 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
 
     // _______________ Owner functions ______________
     function setLockTime(uint256 _newLockTime) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        // checking lock time
+        if ((_newLockTime <= 0) || (_newLockTime > 26 weeks)) {
+            revert IncorrectLockTime();
+        }
+
         uint256 oldLockTime = lockTime;
         lockTime = _newLockTime;
 
@@ -85,6 +122,11 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
     }
 
     function setRewardPercentage(uint256 _newRewardPercentage) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        // checking reward percentage
+        if ((_newRewardPercentage <= 0) || (_newRewardPercentage > 50)) {
+            revert IncorrectRewardPercentage();
+        }
+
         uint256 oldRewardPercentage = rewardPercentage;
         rewardPercentage = _newRewardPercentage;
 
@@ -92,12 +134,32 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
     }
 
     function addAdmin(address _admin) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        // cheking not zero address
+        if (address(_admin) == address(0)) {
+            revert ZeroAddress();
+        }
+
+        // cheking admin role
+        if (hasRole(ADMIN_ROLE, _admin)) {
+            revert AdminAlreadyGranted();
+        }
+
         _grantRole(ADMIN_ROLE, _admin);
 
         emit AdminAdded(_admin);
     }
 
     function revokeAdmin(address _admin) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        // cheking not zero address
+        if (address(_admin) == address(0)) {
+            revert ZeroAddress();
+        }
+
+        // cheking admin role
+        if (!hasRole(ADMIN_ROLE, _admin)) {
+            revert AdminNotGranted();
+        }
+
         _revokeRole(ADMIN_ROLE, _admin);
 
         emit AdminRevoked(_admin);
@@ -105,12 +167,32 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
 
     // _______________ Admin functions ______________
     function lockUser(address _user) public onlyRole(ADMIN_ROLE) {
+        // checking not zero address
+        if (address(_user) == address(0)) {
+            revert ZeroAddress();
+        }
+
+        // check users lock
+        if (lockUsers[_user]) {
+            revert UserAlreadyLocked();
+        }
+
         lockUsers[_user] = true;
 
         emit UserLocked(_user);
     }
 
     function unlockUser(address _user) public onlyRole(ADMIN_ROLE) {
+        // cheking not zero address
+        if (address(_user) == address(0)) {
+            revert ZeroAddress();
+        }
+
+        // check users lock
+        if (!lockUsers[_user]) {
+            revert UserNotLocked();
+        }
+
         lockUsers[_user] = false;
 
         emit UserUnlocked(_user);
@@ -120,13 +202,24 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
     }
 
     function withdrawEther(uint256 _amount) public onlyRole(ADMIN_ROLE) {
+        // checking Ether existence
+        if (_amount > address(this).balance) {
+            revert ContractHasNoEther();
+        }
+    
         // sending Ether
         address payable admin = payable(msg.sender);
         admin.transfer(_amount);
     }
 
     // _______________ Users functions ______________
+    // TODO
     function deposit() public payable onlyUnlockedUser(msg.sender) {
+        // checking Ether
+        if (msg.value <= 0) {
+            revert EmptyDeposit();
+        }
+
         uint256 amount = msg.value;
         deposits.push(Deposit({
             user: msg.sender,
@@ -139,17 +232,23 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
         emit Deposited(msg.sender, amount, block.timestamp, block.timestamp + lockTime, rewardPercentage);
     }
 
+    // TODO
     function withdraw() public onlyUnlockedUser(msg.sender) {
         uint256 etherAmount = 0;
         uint256 ERC20rewards = 0;
 
         for (uint i = 0; i < deposits.length; i++) {
-            if (deposits[i].user == msg.sender) {
+            if ((deposits[i].user == msg.sender) && (deposits[i].endTime < block.timestamp)) {
                 etherAmount += deposits[i].amount;
                 IGovernanceToken(token).mint(msg.sender, deposits[i].amount * rewardPercentage / 100);
                 ERC20rewards += deposits[i].amount * rewardPercentage / 100;
-                delete deposits[i];
+                _removeDeposit(msg.sender, i);
             }
+        }
+
+        // checking Ether existence
+        if (etherAmount > address(this).balance) {
+            revert ContractHasNoEther();
         }
 
         // sending Ether
@@ -158,5 +257,9 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
 
         // emit event
         emit Withdrawed(msg.sender, etherAmount, block.timestamp, ERC20rewards);
+    }
+
+    // _______________ Support functions ______________
+    function _removeDeposit(address user, uint index) private {
     }
 }
