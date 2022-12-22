@@ -212,7 +212,6 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
     }
 
     // _______________ Users functions ______________
-    // TODO
     function deposit() public payable onlyUnlockedUser(msg.sender) {
         // checking Ether
         if (msg.value <= 0) {
@@ -231,17 +230,20 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
         emit Deposited(msg.sender, amount, block.timestamp, block.timestamp + lockTime, rewardPercentage);
     }
 
-    // TODO
     function withdraw() public {
         uint256 etherAmount = 0;
         uint256 ERC20rewards = 0;
 
-        for (uint i = 0; i < deposits[msg.sender].length; i++) {
-            if (deposits[msg.sender][i].endTime < block.timestamp) {
-                etherAmount += deposits[msg.sender][i].amount;
-                IGovernanceToken(token).mint(msg.sender, deposits[msg.sender][i].amount * rewardPercentage / 100);
-                ERC20rewards += deposits[msg.sender][i].amount * rewardPercentage / 100;
-                _removeDeposit(msg.sender, i);
+        Deposit[] memory userDeposits = deposits[msg.sender];
+        delete deposits[msg.sender];
+
+        for (uint i = 0; i < userDeposits.length; i++) {
+            if (userDeposits[i].endTime < block.timestamp) {
+                etherAmount += userDeposits[i].amount;
+                IGovernanceToken(token).mint(msg.sender, userDeposits[i].amount * rewardPercentage / 100);
+                ERC20rewards += userDeposits[i].amount * rewardPercentage / 100;
+            } else {
+                deposits[msg.sender].push(userDeposits[i]);
             }
         }
 
@@ -256,9 +258,5 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
 
         // emit event
         emit Withdrawed(msg.sender, etherAmount, block.timestamp, ERC20rewards);
-    }
-
-    // _______________ Support functions ______________
-    function _removeDeposit(address user, uint index) private {
     }
 }
