@@ -347,6 +347,14 @@ describe("Contract: YoungCompanyStaking", function () {
         });
     });
 
+    describe("Error trapping", function () {
+        it("Should not deploy contract with ZeroAddress token", async () => {
+            // Deploy YoungCompanyStaking
+            const ycs = await ethers.getContractFactory("YoungCompanyStaking");
+            await expect(ycs.deploy(AddressZero)).to.be.reverted;            
+        });
+    });
+
     // restore snapshot
     afterEach(async () => await snapshotA.restore());
 });
