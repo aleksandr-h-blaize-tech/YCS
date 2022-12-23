@@ -80,7 +80,8 @@
     },
     "dependencies": {
         "@openzeppelin/contracts": "4.7.3",
-        "@openzeppelin/contracts-upgradeable": "4.7.3"
+        "@openzeppelin/contracts-ethereum-package": "^3.0.0",
+        "@openzeppelin/contracts-upgradeable": "^4.8.0"
     },
     "devDependencies": {
         "@commitlint/cli": "^17.1.2",

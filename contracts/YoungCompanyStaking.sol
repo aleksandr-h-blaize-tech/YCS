@@ -81,7 +81,7 @@ contract YoungCompanyStaking is Initializable, AccessControlUpgradeable {
     }
 
     // _______________ Initializer ______________
-    function initialize(uint256 _lockTIme, uint256 _rewardPercentage) external onlyRole(DEFAULT_ADMIN_ROLE) initializer {
+    function initialize(uint256 _lockTIme, uint256 _rewardPercentage) public onlyRole(DEFAULT_ADMIN_ROLE) initializer {
         // checking lock time
         if ((_lockTIme <= 0) || (_lockTIme > 26 weeks)) {
             revert IncorrectLockTime();
