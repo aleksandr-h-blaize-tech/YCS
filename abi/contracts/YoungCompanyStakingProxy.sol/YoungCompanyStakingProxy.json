@@ -1,0 +1,6 @@
+[
+  "constructor()",
+  "function admin() view returns (address)",
+  "function implementation() view returns (address)",
+  "function upgradeTo(address)"
+]
